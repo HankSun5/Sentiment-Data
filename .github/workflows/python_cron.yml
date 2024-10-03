@@ -24,6 +24,11 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+    - name: Debug - Show current directory
+      run: pwd
+
+    - name: Debug - List all files
+      run: ls -al
+
     - name: Run Python script
-      run: |
-        python crypto_sentiment_etl.py
+      run: python crypto_sentiment_etl.py
