@@ -1,7 +1,7 @@
 name: Run Python script every 2 hours
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # 允许手动触发
   schedule:
     # Cron 表达式: 每 2 小时运行一次任务
     - cron: '0 */2 * * *'
@@ -12,12 +12,12 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3  # 升级到 v3
 
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v3  # 升级到 v3
       with:
-        python-version: '3.x'
+        python-version: '3.x'  # 根据需要指定具体版本，如 '3.8'
 
     - name: Install dependencies
       run: |
@@ -27,11 +27,19 @@ jobs:
     - name: Debug - Show current directory
       run: pwd
 
-    - name: Debug - List all files
+    - name: Debug - List all files before running script
       run: ls -al
-    
-    - name: Debug - List files in SentimentData directory
-      run: ls -al SentimentData
 
     - name: Run Python script
       run: python crypto_sentiment_etl.py
+
+    - name: Debug - List files in SentimentData directory after running script
+      run: ls -al SentimentData
+
+    - name: Debug - Show contents of generated CSV
+      run: |
+        if [ -f SentimentData/*.csv ]; then
+          cat SentimentData/*.csv
+        else
+          echo "No CSV files found in SentimentData directory."
+        fi
