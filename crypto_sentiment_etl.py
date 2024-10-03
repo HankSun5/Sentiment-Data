@@ -18,9 +18,15 @@ def Stage1_CryptoETL_Text(export_path, api_key=None):
         headers['Apikey'] = api_key  # 使用API密钥设置请求头
 
     url = 'https://min-api.cryptocompare.com/data/v2/news/?lang=EN'
-    response = requests.get(url, headers=headers)
-    data = response.json()
     
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # 如果响应状态不是200，则抛出异常
+        data = response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data from API: {e}")
+        return pd.DataFrame()  # 返回空的 DataFrame 以防止后续报错
+        
     # 将获取的数据转换为DataFrame
     df = pd.DataFrame(data['Data'])
     
