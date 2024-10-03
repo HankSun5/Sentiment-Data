@@ -29,6 +29,9 @@ jobs:
 
     - name: Debug - List all files
       run: ls -al
+    
+    - name: Debug - List files in SentimentData directory
+      run: ls -al SentimentData
 
     - name: Run Python script
       run: python crypto_sentiment_etl.py
