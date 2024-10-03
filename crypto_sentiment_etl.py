@@ -67,46 +67,6 @@ def update_existing_data(existing_file, new_df):
     print(f"数据已更新并保存到 {existing_file}")
     return combined_df
 
-# Step 3: 合并多个CSV文件中的新闻数据，并保存到当前工作目录
-def combine_news_data(base_dir):
-    files = os.listdir(base_dir)
-    df = pd.DataFrame()
-
-    for f in files:
-        file_path = os.path.join(base_dir, f)
-        if os.path.isfile(file_path):  # 只处理文件，忽略文件夹
-            if os.path.getsize(file_path) > 0:  # 确保文件不为空
-                try:
-                    dfsub = pd.read_csv(file_path)
-                    dfsub['date'] = pd.to_datetime(dfsub['published_on'], unit="s")
-                    df = pd.concat([df, dfsub], axis=0)
-                except pd.errors.EmptyDataError:
-                    print(f"Warning: {file_path} is empty. Skipping.")
-            else:
-                print(f"Warning: {file_path} is empty. Skipping.")
-        else:
-            print(f"{file_path} is not a valid file. Skipping.")
-    
-    if df.empty:
-        print("No data to combine.")
-        return df  # 返回空DataFrame以防后续报错
-
-    # 创建 'datem' 列并按日期排序
-    df['datem'] = pd.to_datetime(df['date']).dt.date
-    df = df.sort_values(['datem'])
-
-    # 删除 'Unnamed: 0' 列，忽略不存在的列
-    df.drop(['Unnamed: 0'], axis=1, inplace=True, errors='ignore')
-    
-    # 使用 os.getcwd() 获取当前工作目录路径
-    current_directory = os.getcwd()  
-    
-    # 将最终的汇总数据保存到当前工作目录
-    stage_file_path = os.path.join(current_directory, 'Stage_1_Time_Series_Sentiment.csv')
-    df.to_csv(stage_file_path, index=False)
-    print(f"汇总数据已保存到 {stage_file_path}")
-    return df
-
 # 主逻辑
 today_date = pd.Timestamp.today().strftime('%d_%m_%Y')  # 获取当天日期
 file_name = today_date + '_Sentiment.csv'  # 以当天日期命名文件
@@ -117,6 +77,3 @@ new_data = Stage1_CryptoETL_Text(export_path, api_key)
 
 # Step 2: 更新现有文件，追加新数据
 updated_df = update_existing_data(existing_file_path, new_data)
-
-# Step 3: 合并所有新闻文件，生成时间序列数据并保存到当前工作目录
-final_combined_df = combine_news_data(export_path)
