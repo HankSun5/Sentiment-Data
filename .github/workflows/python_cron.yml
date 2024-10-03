@@ -1,6 +1,7 @@
 name: Run Python script every 2 hours
 
 on:
+  workflow_dispatch:
   schedule:
     # Cron 表达式: 每 2 小时运行一次任务
     - cron: '0 */2 * * *'
