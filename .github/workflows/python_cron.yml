@@ -1,45 +1,46 @@
 name: Run Python script every 2 hours
 
 on:
-  workflow_dispatch:  # 允许手动触发
   schedule:
-    # Cron 表达式: 每 2 小时运行一次任务
-    - cron: '0 */2 * * *'
+    - cron: '0 */2 * * *'  # 每两小时运行一次
+  workflow_dispatch:  # 允许手动触发工作流
 
 jobs:
   run-python-script:
     runs-on: ubuntu-latest
 
     steps:
+    # Step 1: 检出代码
     - name: Checkout code
-      uses: actions/checkout@v3  # 升级到 v3
+      uses: actions/checkout@v3
 
+    # Step 2: 设置 Python 环境
     - name: Set up Python
-      uses: actions/setup-python@v3  # 升级到 v3
+      uses: actions/setup-python@v3
       with:
-        python-version: '3.x'  # 根据需要指定具体版本，如 '3.8'
+        python-version: '3.x'
 
+    # Step 3: 安装依赖
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    - name: Debug - Show current directory
-      run: pwd
-
-    - name: Debug - List all files before running script
-      run: ls -al
-
+    # Step 4: 运行 Python 脚本
     - name: Run Python script
       run: python crypto_sentiment_etl.py
 
-    - name: Debug - List files in SentimentData directory after running script
-      run: ls -al SentimentData
-
-    - name: Debug - Show contents of generated CSV
+    # Step 5: 检查是否有文件更改
+    - name: Check for changes
       run: |
-        if [ -f SentimentData/*.csv ]; then
-          cat SentimentData/*.csv
-        else
-          echo "No CSV files found in SentimentData directory."
-        fi
+        git config --global user.name "GitHub Actions Bot"
+        git config --global user.email "actions@github.com"
+        git add SentimentData/
+        git diff --cached --exit-code || git commit -m "Update sentiment data"
+
+    # Step 6: 推送更改回 GitHub 仓库
+    - name: Push changes
+      if: success()
+      run: git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
