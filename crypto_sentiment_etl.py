@@ -75,9 +75,21 @@ def combine_news_data(base_dir):
     for f in files:
         file_path = os.path.join(base_dir, f)
         if os.path.isfile(file_path):  # 只处理文件，忽略文件夹
-            dfsub = pd.read_csv(file_path)
-            dfsub['date'] = pd.to_datetime(dfsub['published_on'], unit="s")
-            df = pd.concat([df, dfsub], axis=0)
+            if os.path.getsize(file_path) > 0:  # 确保文件不为空
+                try:
+                    dfsub = pd.read_csv(file_path)
+                    dfsub['date'] = pd.to_datetime(dfsub['published_on'], unit="s")
+                    df = pd.concat([df, dfsub], axis=0)
+                except pd.errors.EmptyDataError:
+                    print(f"Warning: {file_path} is empty. Skipping.")
+            else:
+                print(f"Warning: {file_path} is empty. Skipping.")
+        else:
+            print(f"{file_path} is not a valid file. Skipping.")
+    
+    if df.empty:
+        print("No data to combine.")
+        return df  # 返回空DataFrame以防后续报错
 
     # 创建 'datem' 列并按日期排序
     df['datem'] = pd.to_datetime(df['date']).dt.date
