@@ -1,8 +1,3 @@
-import os
-import requests
-from datetime import datetime
-import pandas as pd
-
 api_key = 'db097b6b5b134f5085f1dd09b87a61be7fe1933338c8ce97ff5fe64ee339a447'
 export_path = r'SentimentData'  # 设置导出路径
 
@@ -23,16 +18,23 @@ def Stage1_CryptoETL_Text(export_path, api_key=None):
         response = requests.get(url, headers=headers)
         response.raise_for_status()  # 如果响应状态不是200，则抛出异常
         data = response.json()
+        if 'Data' not in data or not data['Data']:
+            print("API 没有返回有效数据")
+            return pd.DataFrame()  # 返回空的 DataFrame 以防止后续报错
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data from API: {e}")
         return pd.DataFrame()  # 返回空的 DataFrame 以防止后续报错
-        
+
     # 将获取的数据转换为DataFrame
     df = pd.DataFrame(data['Data'])
+
+    if df.empty:
+        print("API 返回的数据为空")
+        return df
     
     # 转换'published_on'为日期格式
     df['date'] = pd.to_datetime(df['published_on'], unit="s")
-    
+
     # 确保保存路径存在
     ensure_directory_exists(export_path)
     
@@ -43,6 +45,11 @@ def Stage1_CryptoETL_Text(export_path, api_key=None):
 def update_existing_data(existing_file, new_df):
     ensure_directory_exists(os.path.dirname(existing_file))  # 确保文件保存路径存在
     
+    # 检查新数据是否为空
+    if new_df.empty:
+        print("新获取的数据为空，跳过更新")
+        return new_df
+
     if os.path.exists(existing_file):
         # 加载现有数据，处理日期列和去除Unnamed列
         existing_df = pd.read_csv(existing_file).drop(columns=['Unnamed: 0'], errors='ignore')
