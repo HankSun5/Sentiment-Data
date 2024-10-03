@@ -1,3 +1,8 @@
+import os
+import requests
+from datetime import datetime
+import pandas as pd
+
 api_key = 'db097b6b5b134f5085f1dd09b87a61be7fe1933338c8ce97ff5fe64ee339a447'
 export_path = r'SentimentData'  # 设置导出路径
 
