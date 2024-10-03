@@ -1,4 +1,4 @@
-name: Run Python script every 8 hours
+name: Run Python script every 2 hours
 
 on:
   schedule:
@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.x'  # 确保使用你需要的 Python 版本
+        python-version: '3.x'
 
     - name: Install dependencies
       run: |
@@ -26,4 +26,3 @@ jobs:
     - name: Run Python script
       run: |
         python crypto_sentiment_etl.py
-
