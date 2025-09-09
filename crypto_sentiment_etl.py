@@ -81,7 +81,7 @@ def update_existing_data(existing_file, new_df):
     return combined_df
 
 # 主逻辑
-today_date = pd.Timestamp.today().strftime('%d_%m_%Y')  # 获取当天日期
+today_date = pd.Timestamp.today().strftime('%Y_%m_%d')  # 获取当天日期
 file_name = today_date + '_Sentiment.csv'  # 以当天日期命名文件
 existing_file_path = os.path.join(export_path, file_name)  # 完整文件路径
 
