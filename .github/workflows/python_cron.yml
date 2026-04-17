@@ -2,8 +2,8 @@ name: Run Python script every 2 hours
 
 on:
   schedule:
-    - cron: '0 */2 * * *'  # 每两小时运行一次
-  workflow_dispatch:  # 允许手动触发工作流
+    - cron: '0 */2 * * *'
+  workflow_dispatch:
 
 jobs:
   run-python-script:
@@ -12,13 +12,13 @@ jobs:
     steps:
     # Step 1: 检出代码
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4   # ✅ 升级
 
     # Step 2: 设置 Python 环境
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5   # ✅ 升级
       with:
-        python-version: '3.x'
+        python-version: '3.11'  # ✅ 建议固定版本（避免不稳定）
 
     # Step 3: 安装依赖
     - name: Install dependencies
@@ -31,14 +31,14 @@ jobs:
       run: python crypto_sentiment_etl.py
 
     # Step 5: 检查是否有文件更改
-    - name: Check for changes
+    - name: Commit changes if any
       run: |
-        git config --global user.name "GitHub Actions Bot"
-        git config --global user.email "actions@github.com"
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
         git add SentimentData/
-        git diff --cached --exit-code || git commit -m "Update sentiment data"
+        git diff --cached --quiet || git commit -m "Update sentiment data"
 
-    # Step 6: 推送更改回 GitHub 仓库
+    # Step 6: 推送更改
     - name: Push changes
       if: success()
       run: git push
